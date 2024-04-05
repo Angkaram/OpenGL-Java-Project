@@ -53,15 +53,15 @@ public class slLevelSceneEditor {
 
         testShader =
                 //new slShaderManager("vs_texture_1.glsl", "fs_texture_1.glsl");
-                new slShaderManager(System.getProperty("user.dir") + "/assets/shaders/vs_texture_1.glsl", System.getProperty("user.dir") + "/assets/shaders/fs_texture_1.glsl");
+                new slShaderManager(System.getProperty("user.dir") + "/assets/shaders/vs_0.glsl", System.getProperty("user.dir") + "/assets/shaders/fs_0.glsl");
 
 
         testShader.compile_shader();
         // TODO: Add texture manager object here:
         //testTexture = new slTextureManager(System.getProperty("user.dir") + "/assets/shaders/Mario2.PNG");
 
-        vaoID = glGenVertexArrays();
-        glBindVertexArray(vaoID);
+        //vaoID = glGenVertexArrays();
+        //glBindVertexArray(vaoID);
 
         FloatBuffer vertexBuffer = BufferUtils.createFloatBuffer(vertexArray.length);
         vertexBuffer.put(vertexArray).flip();
@@ -107,7 +107,7 @@ public class slLevelSceneEditor {
 
         testShader.loadMatrix4f("uProjMatrix", my_camera.getProjectionMatrix());
         testShader.loadMatrix4f("uViewMatrix", my_camera.getViewMatrix());
-        glBindVertexArray(vaoID);
+        //glBindVertexArray(vaoID);
 
         glEnableVertexAttribArray(vpoIndex);
         glEnableVertexAttribArray(vcoIndex);
@@ -118,7 +118,7 @@ public class slLevelSceneEditor {
         glDisableVertexAttribArray(vcoIndex);
         glDisableVertexAttribArray(vtoIndex);
 
-        glBindVertexArray(0);
+        //glBindVertexArray(0);
         slShaderManager.detachShader();
     }
 
