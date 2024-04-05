@@ -11,7 +11,7 @@ interface CameraInterface {
     public void setOrthoProjection();
     public void relativeMoveCamera(float deltaX, float deltaY);
     public Vector3f getCurLookFrom();
-    public void setCurLookFrom(Vector3f new_lf);
+    public void setCurLookFrom(Vector3f new_look_from);
     public Vector3f getCurLookAt();
     public Matrix4f getViewMatrix();
     public Matrix4f getProjectionMatrix();
@@ -19,7 +19,7 @@ interface CameraInterface {
 
 public class slCamera implements CameraInterface {
     private final Matrix4f projectionMatrix, viewMatrix;
-    public Vector3f defaultLookFrom = new Vector3f(0.0f, 0.0f, 00.0f);
+    public Vector3f defaultLookFrom = new Vector3f(0.0f, 0.0f, 0.0f);
     public Vector3f defaultLookAt = new Vector3f(0.0f, 0.0f, -1.0f);
     public Vector3f defaultUpVector = new Vector3f(0.0f, 1.0f, 0.0f);
 
@@ -27,7 +27,6 @@ public class slCamera implements CameraInterface {
     private final Vector3f curLookAt   = new Vector3f(defaultLookAt);
     private final Vector3f curUpVector = new Vector3f(defaultUpVector);
 
-    // camera_position.z > 0 as (0, 0, 0) is at the center of the screen; e.g: (0, 0, 20):
     public slCamera(Vector3f camera_position) {
         this.defaultLookFrom = camera_position;
         this.curLookFrom = camera_position;
@@ -51,9 +50,9 @@ public class slCamera implements CameraInterface {
     }
 
     @Override
-    public void setCurLookFrom(Vector3f new_lf) {
+    public void setCurLookFrom(Vector3f new_look_from) {
 
-        this.curLookFrom.set(new_lf);
+        this.curLookFrom.set(new_look_from);
     }
 
     @Override
@@ -85,6 +84,8 @@ public class slCamera implements CameraInterface {
 
     // fall back to the default values
     public void restoreCamera() {
-        projectionMatrix.ortho(FRUSTUM_LEFT, FRUSTUM_RIGHT, FRUSTUM_BOTTOM, FRUSTUM_TOP, Z_NEAR, Z_FAR);
+        defaultLookFrom.x = 0.0f;
+        defaultLookFrom.y = 0.0f;
+        setOrthoProjection();
     }
 }

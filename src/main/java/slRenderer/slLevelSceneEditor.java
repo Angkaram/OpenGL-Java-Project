@@ -3,6 +3,7 @@ package slRenderer;
 import org.joml.Vector3f;
 import org.lwjgl.BufferUtils;
 
+import java.awt.*;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 
@@ -14,7 +15,7 @@ import static csc133.spot.*;
 
 public class slLevelSceneEditor {
 
-    private final Vector3f my_camera_location = new Vector3f(0, 0, 0.0f);
+    private final Vector3f my_camera_loc = new Vector3f(0, 0, 0.0f);
     private slShaderManager testShader;
     private slTextureManager testTexture;
 
@@ -50,15 +51,16 @@ public class slLevelSceneEditor {
     }
 
     public void init() {
-        my_camera = new slCamera(my_camera_location);
+        my_camera = new slCamera(my_camera_loc);
         my_camera.setOrthoProjection();
 
         // TODO: put the new shaders once working
         testShader = new slShaderManager("vs_0.glsl", "fs_0.glsl");
+        //testShader = new slShaderManager("vs_texture_1.glsl", "fs_texture_1.glsl");
 
         testShader.compile_shader();
         // TODO: Add texture manager object here:
-        //testTexture = new slTextureManager("Mario2.PNG");
+        //testTexture = new slTextureManager(System.getProperty("user.dir") + "/assets/shaders/Mario2.PNG");
 
         vaoID = glGenVertexArrays();
         glBindVertexArray(vaoID);
@@ -95,11 +97,10 @@ public class slLevelSceneEditor {
 
         //TODO: Add camera motion here:
 
-        my_camera.relativeMoveCamera(dt*alpha, dt*alpha);
+        my_camera.relativeMoveCamera(dt * alpha, dt * alpha);
 
         if (my_camera.getCurLookFrom().x < -FRUSTUM_RIGHT) {
-            my_camera.setCurLookFrom(my_camera_location);
-            my_camera.setOrthoProjection();
+            my_camera.restoreCamera();
         }
 
         testShader.set_shader_program();

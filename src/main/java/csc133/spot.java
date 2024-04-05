@@ -19,13 +19,12 @@ public class spot {
             FRUSTUM_BOTTOM = 0.0f, FRUSTUM_TOP = (float)WIN_HEIGHT,
             Z_NEAR = 0.0f, Z_FAR = 10.0f;
 
-    public static final Vector3f VEC_RC =
-            new Vector3f(0.0f, 0.498f, 0.0153f); // "vector render color" for square
+    public static final Vector3f VEC_RENDER_COLOR =
+            new Vector3f(0.0f, 0.498f, 0.0153f);
 
     public static final Vector4f liveColor = new Vector4f(1.0f, 1.0f, 0.0f, 1.0f);
     public static final Vector4f deadColor = new Vector4f(1.0f, 0.0f, 0.0f, 1.0f);
 
-    //-----------------------------------------------------------------------------------
     public static final float defaultSL = 0.0f, defaultSR = WIN_WIDTH,
             defaultSB = 0.0f, defaultST = WIN_HEIGHT;
     public static final float defaultZNear = 0.0f, defaultZFar = 10.0f;
