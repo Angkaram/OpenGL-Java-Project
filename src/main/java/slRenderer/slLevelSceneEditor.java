@@ -6,6 +6,7 @@ import org.lwjgl.BufferUtils;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 
+import static csc133.spot.alpha;
 import static org.lwjgl.opengl.ARBVertexArrayObject.glBindVertexArray;
 import static org.lwjgl.opengl.ARBVertexArrayObject.glGenVertexArrays;
 import static org.lwjgl.opengl.GL20.*;
@@ -17,22 +18,23 @@ public class slLevelSceneEditor {
     private slShaderManager testShader;
     private slTextureManager testTexture;
 
-    private float xmin = POLY_OFFSET, ymin = POLY_OFFSET, zmin = 0.0f, xmax = xmin+ POLYGON_LENGTH,
-                            ymax = ymin+ POLYGON_LENGTH, zmax = 0.0f;
+    private float xmin = POLY_OFFSET, ymin = POLY_OFFSET, zmin = 0.0f, xmax = xmin+ SQUARE_LENGTH,
+            ymax = ymin+ SQUARE_LENGTH, zmax = 0.0f;
 
     private final float uvmin = 0.0f, uvmax = 1.0f;
     // TODO: Add the vertices here: you need to add the UV Coordinates for the textures here -
+    // colors will be discarded by the fragment texture with the texels. Nevertheless, we do send
+    // them in.
     private final float [] vertexArray = {
             // vertices -        colors                   UV coordinates
-            xmin, ymin, zmax, 1.0f, 1.0f, 0.0f, 1.0f, uvmin, uvmin,
-            xmax, ymin, zmax, 1.0f, 1.0f, 0.0f, 1.0f, uvmax, uvmin,
-            xmax, ymin, zmin, 1.0f, 1.0f, 0.0f, 1.0f, uvmax, uvmax,
-            xmin, ymax, zmin, 1.0f, 1.0f, 0.0f, 1.0f, uvmin, uvmax
+            xmin, ymin, zmin, 1.0f, 1.0f, 0.0f, 1.0f, uvmin, uvmin,
+            xmax, ymin, zmin, 1.0f, 1.0f, 0.0f, 1.0f, uvmax, uvmin,
+            xmax, ymax, zmax, 1.0f, 1.0f, 0.0f, 1.0f, uvmax, uvmax,
+            xmin, ymax, zmax, 1.0f, 1.0f, 0.0f, 1.0f, uvmin, uvmin
     };
 
-    private final int[] rgElements = {2, 1, 0, //top triangle
-                                      0, 1, 3 // bottom triangle
-    };
+    private final int[] rgElements = { 0, 1, 2,
+                                       0, 2, 3 };
     int positionStride = 3;
     int colorStride = 4;
     int textureStride = 2;
@@ -51,17 +53,15 @@ public class slLevelSceneEditor {
         my_camera = new slCamera(my_camera_location);
         my_camera.setOrthoProjection();
 
-        testShader =
-                //new slShaderManager("vs_texture_1.glsl", "fs_texture_1.glsl");
-                new slShaderManager(System.getProperty("user.dir") + "/assets/shaders/vs_0.glsl", System.getProperty("user.dir") + "/assets/shaders/fs_0.glsl");
-
+        // TODO: put the new shaders once working
+        testShader = new slShaderManager("vs_0.glsl", "fs_0.glsl");
 
         testShader.compile_shader();
         // TODO: Add texture manager object here:
-        //testTexture = new slTextureManager(System.getProperty("user.dir") + "/assets/shaders/Mario2.PNG");
+        //testTexture = new slTextureManager("Mario2.PNG");
 
-        //vaoID = glGenVertexArrays();
-        //glBindVertexArray(vaoID);
+        vaoID = glGenVertexArrays();
+        glBindVertexArray(vaoID);
 
         FloatBuffer vertexBuffer = BufferUtils.createFloatBuffer(vertexArray.length);
         vertexBuffer.put(vertexArray).flip();
@@ -82,32 +82,33 @@ public class slLevelSceneEditor {
         glEnableVertexAttribArray(vpoIndex);
 
         glVertexAttribPointer(vcoIndex, colorStride, GL_FLOAT, false, vertexStride,
-                                                            positionStride * Float.BYTES);
+                positionStride * Float.BYTES);
         glEnableVertexAttribArray(vcoIndex);
 
         // TODO: Add the vtoIndex --> "Vertex Texture Object Index" here via glVertexAttribPointer and enable it -
-        // Position attribute for 2D vertices
-        glVertexAttribPointer(vpoIndex, vtoIndex, GL_FLOAT, false, colorStride * Float.BYTES, 0);
-        glEnableVertexAttribArray(vpoIndex);
-
-        // Texture coordinate attribute (UV) for 2D vertices
-        glVertexAttribPointer(vcoIndex, vtoIndex, GL_FLOAT, false, colorStride * Float.BYTES, vtoIndex * Float.BYTES);
-        glEnableVertexAttribArray(vcoIndex);
+        // similar to other AttribPointers above.
+        glVertexAttribPointer(vtoIndex, textureStride, GL_FLOAT, false, textureStride, 0);
+        glEnableVertexAttribArray(vtoIndex);
     }
 
     public void update(float dt) {
 
+        //TODO: Add camera motion here:
+
         my_camera.relativeMoveCamera(dt*alpha, dt*alpha);
+
         if (my_camera.getCurLookFrom().x < -FRUSTUM_RIGHT) {
-            my_camera.restoreCamera();
+            my_camera.setCurLookFrom(my_camera_location);
+            my_camera.setOrthoProjection();
         }
 
-        testShader.setShaderProgram();
+        testShader.set_shader_program();
 
 
         testShader.loadMatrix4f("uProjMatrix", my_camera.getProjectionMatrix());
         testShader.loadMatrix4f("uViewMatrix", my_camera.getViewMatrix());
-        //glBindVertexArray(vaoID);
+
+        glBindVertexArray(vaoID);
 
         glEnableVertexAttribArray(vpoIndex);
         glEnableVertexAttribArray(vcoIndex);
@@ -119,7 +120,7 @@ public class slLevelSceneEditor {
         glDisableVertexAttribArray(vtoIndex);
 
         //glBindVertexArray(0);
-        slShaderManager.detachShader();
+        testShader.detach_shader();
     }
 
 }

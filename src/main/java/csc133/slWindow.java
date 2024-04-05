@@ -1,9 +1,9 @@
 package csc133;
 
-import org.lwjgl.glfw.GLFWErrorCallback;
-import org.lwjgl.opengl.GL;
 import slRenderer.slKeyListener;
 import slRenderer.slLevelSceneEditor;
+import org.lwjgl.glfw.GLFWErrorCallback;
+import org.lwjgl.opengl.GL;
 import slRenderer.slMouseListener;
 
 import static csc133.spot.*;
@@ -41,19 +41,15 @@ public class slWindow {
     }
 
     public void run() {
-        print_legalese();
+        //print_legalese();
         init();
-        loop(); // something breaks after/during this loop
+        loop();
 
         // Clean up:
         glfwFreeCallbacks(glfwWindow);
         glfwDestroyWindow(glfwWindow);
         glfwTerminate();
         glfwSetErrorCallback(null).free();
-    }
-
-    private void print_legalese() {
-        //System.out.println("Hello");
     }
 
     public void init() {

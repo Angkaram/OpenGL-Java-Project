@@ -7,7 +7,8 @@ import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 
 import static org.lwjgl.opengl.GL11C.*;
-import static org.lwjgl.stb.STBImage.*;
+import static org.lwjgl.stb.STBImage.stbi_image_free;
+import static org.lwjgl.stb.STBImage.stbi_load;
 
 import org.lwjgl.stb.STBImage;
 
@@ -56,9 +57,6 @@ class slTextureManager implements  TextureManagerInterface {
         else {
             assert false : "Error loading the texture image \"" + texFilepath + "\" ";
         }
-
-       
-            
         // Now that the texture is loaded, the image memory can be released to OS:
         stbi_image_free(texImage);
     }

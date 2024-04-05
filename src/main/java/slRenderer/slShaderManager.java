@@ -2,102 +2,77 @@ package slRenderer;
 
 import org.joml.Matrix4f;
 import org.lwjgl.BufferUtils;
-import org.lwjgl.opengl.GL20;
-
-import java.io.IOException;
+import java.io.File;
 import java.nio.FloatBuffer;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-
-import static csc133.spot.shader_program;
+import java.util.Scanner;
+//import static slRenderer.slSingleBatchRenderer.OGL_MATRIX_SIZE;
+import static csc133.spot.OGL_MATRIX_SIZE;
 import static org.lwjgl.opengl.GL20.*;
 
 public class slShaderManager {
+    private static String vsFilename;  // Vertex shader file path
+    private static String fsFilename; // Fragment shader file path
+    private static int csProgram;
 
-    private final String vsFilename; // Vertex shader file path
-    private final String fsFilename; // Fragment shader file path
+    slShaderManager (String vs_filename, String fs_filename) {
+        vsFilename = readShader(vs_filename);
+        fsFilename = readShader(fs_filename);
+        csProgram = -1;
+    }
 
-    public slShaderManager(String vs_filename, String fs_filename) {
-        this.vsFilename = vs_filename;
-        this.fsFilename = fs_filename;
+    // read in the shader file as strings
+    private String readShader(String s_filename) {
+        StringBuilder strShader = new StringBuilder();
+        try {
+            File sLocation = new File(System.getProperty("user.dir") + "/assets/shaders/" + s_filename);
+            Scanner myReader = new Scanner(sLocation);
+            while (myReader.hasNextLine()) {
+                strShader.append(myReader.nextLine());
+            }
+            myReader.close();
+
+        } catch (Exception e) {
+            System.out.println("Cannot find file: " + e.getMessage());
+        }
+        return strShader.toString();
+    }
+
+    // Overloading here
+    public int compile_shader(String vs_filename, String fs_filename) {
+        vsFilename = readShader(vs_filename);
+        fsFilename = readShader(fs_filename);
+
+        return compile_shader();
     }
 
     public int compile_shader() {
-        int programID = glCreateProgram();
+        csProgram = glCreateProgram();
+        int VSID = glCreateShader(GL_VERTEX_SHADER);
+        glShaderSource(VSID, vsFilename);
+        glCompileShader(VSID);
+        glAttachShader(csProgram, VSID);
+        int FSID = glCreateShader(GL_FRAGMENT_SHADER);
+        glShaderSource(FSID, fsFilename);
+        glCompileShader(FSID);
+        glAttachShader(csProgram, FSID);
+        glLinkProgram(csProgram);
+        glUseProgram(csProgram);
 
-        // compile vertex shader
-        String vertexShaderSource = loadAsString(vsFilename);
-        int vertexShaderID = glCreateShader(GL_VERTEX_SHADER);
-        assert vertexShaderSource != null;
-        glShaderSource(vertexShaderID, vertexShaderSource);
-        glCompileShader(vertexShaderID);
-        if (glGetShaderi(vertexShaderID, GL_COMPILE_STATUS) == GL_FALSE) {
-            System.err.println("Failed to compile vertex shader.");
-            System.err.println(glGetShaderInfoLog(vertexShaderID));
-            return -1;
-        }
-        else {
-            System.out.println("Vertex Shader Compiled Successfully");
-        }
-        glAttachShader(programID, vertexShaderID);
-
-        // compile fragment shader
-        String fragmentShaderSource = loadAsString(fsFilename);
-        int fragmentShaderID = glCreateShader(GL_FRAGMENT_SHADER);
-        assert fragmentShaderSource != null;
-        glShaderSource(fragmentShaderID, fragmentShaderSource);
-        glCompileShader(fragmentShaderID);
-        if (glGetShaderi(fragmentShaderID, GL_COMPILE_STATUS) == GL_FALSE) {
-            System.err.println("Failed to compile fragment shader.");
-            System.err.println(glGetShaderInfoLog(fragmentShaderID));
-            return -1;
-        }
-        else {
-            System.out.println("Fragment Shader Compiled Successfully");
-        }
-        glAttachShader(programID, fragmentShaderID);
-
-        // link and use the shader program
-        glLinkProgram(programID);
-        if (glGetProgrami(programID, GL_LINK_STATUS) == GL_FALSE) {
-            System.err.println("Failed to link shader program.");
-            System.err.println(glGetProgramInfoLog(programID));
-            return -1;
-        }
-        glUseProgram(programID);
-
-        // detach and delete shaders after linking
-        glDetachShader(programID, vertexShaderID);
-        glDetachShader(programID, fragmentShaderID);
-        glDeleteShader(vertexShaderID);
-        glDeleteShader(fragmentShaderID);
-
-        return programID;
+        return csProgram;
     }
 
-    public void setShaderProgram() {
-        GL20.glUseProgram(shader_program);
+    public void loadMatrix4f(String strMatrixName, Matrix4f my_matrix4f) {
+        int var_location = glGetUniformLocation(csProgram, strMatrixName);
+        FloatBuffer matrixBuffer = BufferUtils.createFloatBuffer(OGL_MATRIX_SIZE);
+        my_matrix4f.get(matrixBuffer);
+        glUniformMatrix4fv(var_location, false, matrixBuffer);
     }
 
-    // this unbinds the shader program (put in rendering code)
-    public static void detachShader() {
-        GL20.glUseProgram(0);
+    public static void detach_shader() {
+        glUseProgram(0);
     }
 
-    public void loadMatrix4f(String uniformName, Matrix4f matrix) {
-        int location = GL20.glGetUniformLocation(shader_program, uniformName);
-        FloatBuffer buffer = BufferUtils.createFloatBuffer(16);
-        matrix.get(buffer);
-        GL20.glUniformMatrix4fv(location, false, buffer);
-    }
-
-    public static String loadAsString(String filePath) {
-        try {
-            return new String(Files.readAllBytes(Paths.get(filePath)));
-        } catch (IOException e) {
-            e.printStackTrace();
-            System.err.println("Could not read the file: " + filePath);
-            return null;
-        }
+    public void set_shader_program() {
+        glUseProgram(csProgram);
     }
 }
