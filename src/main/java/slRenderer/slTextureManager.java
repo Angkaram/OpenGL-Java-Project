@@ -39,6 +39,7 @@ class slTextureManager implements TextureManagerInterface {
         } else {
             int format = texChannels.get(0) == 4 ? GL_RGBA : GL_RGB;
             glTexImage2D(GL_TEXTURE_2D, 0, format, texWidth.get(0), texHeight.get(0), 0, format, GL_UNSIGNED_BYTE, texImage);
+            System.out.println("Successfully loaded Mario texture!");
         }
 
         // Ensure texImage is not null before freeing it
