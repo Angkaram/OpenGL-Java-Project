@@ -4,8 +4,6 @@ import static org.lwjgl.glfw.GLFW.GLFW_PRESS;
 import static org.lwjgl.glfw.GLFW.GLFW_RELEASE;
 
 public class slMouseListener {
-    public static final int MOUSE_LEFT = 0, MOUSE_MIDDLE = 1, MOUSE_RIGHT = 2;
-
     private static slMouseListener my_instance;
     private double scrollX, scrollY;
     double xPos, yPos, lastY, lastX;
@@ -50,6 +48,10 @@ public class slMouseListener {
                 get().isDragging = false;
             }
         }
+    }
+
+    public static void mouseButtonDownReset(int button) {
+        get().mouseButtonPressed[button] = false;
     }
 
     public static void mouseScrollCallback(long my_window, double xOffset, double yOffset) {

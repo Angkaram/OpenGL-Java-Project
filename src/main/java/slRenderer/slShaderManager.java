@@ -52,7 +52,11 @@ public class slShaderManager {
 
     public void set_shader_program() {
         glUseProgram(csProgram);
-    }  // public void set_shader_program()
+    }
+
+    public int getShaderProgram() {
+        return csProgram; // Return the program ID
+    }
 
     public static void detach_shader() {
         glUseProgram(0);
