@@ -1,10 +1,13 @@
 package csc133;
 
-import slRenderer.slKeyListener;
-import slRenderer.slLevelSceneEditor;
+import org.joml.Vector2i;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.opengl.GL;
 import slRenderer.slMouseListener;
+import slRenderer.slDrawablesManager;
+import slRenderer.slTilesManager;
+
+import javax.swing.*;
 
 import static csc133.spot.*;
 import static org.lwjgl.glfw.Callbacks.*;
@@ -13,21 +16,19 @@ import static org.lwjgl.opengl.GL11C.*;
 
 // Added by hand -shankar:
 import static org.lwjgl.system.MemoryUtil.*;
-import static slUtils.slTime.getTime;
 
 
 public class slWindow {
 
     private long glfwWindow;
 
-    private static final float ccRed = 0.0f;
-    private static final float ccGreen = 0.0f;
-    private static final float ccBlue = 0.0f;
+    private static final float ccRed = 0.05f;
+    private static final float ccGreen = 0.05f;
+    private static final float ccBlue = 0.05f;
     private static final float ccAlpha = 1.0f;
 
     private static slWindow my_window = null;
-    private slLevelSceneEditor currentScene;
-
+    private slDrawablesManager minesweeper_drawable;
 
     private slWindow() {
 
@@ -40,9 +41,9 @@ public class slWindow {
         return slWindow.my_window;
     }
 
-    public void run() {
+    public void run(int num_mines) {
         //print_legalese();
-        init();
+        init(num_mines);
         loop();
 
         // Clean up:
@@ -52,11 +53,11 @@ public class slWindow {
         glfwSetErrorCallback(null).free();
     }
 
-    public void init() {
-        // error callback
+    String vsPath = "vs_texture_1.glsl";
+    String fsPath = "fs_texture_1.glsl";
+    String texturePath = (System.getProperty("user.dir") + "/assets/shaders/FourTextures.png");
+    public void init(int num_mines) {
         GLFWErrorCallback.createPrint(System.err).set();
-
-        // Init GLFW
         if (!glfwInit()) {
             throw new IllegalStateException("Could not initialize GLFW");
         }
@@ -64,11 +65,9 @@ public class slWindow {
         // Configure GLFW:
         glfwDefaultWindowHints();
         glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
-        glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
-        //glfwWindowHint(GLFW_MAXIMIZED, GLFW_TRUE);
+        glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
         glfwWindowHint(GLFW_MAXIMIZED, GLFW_FALSE);
 
-        // Create window:
         glfwWindow = glfwCreateWindow(WIN_WIDTH, WIN_HEIGHT, WINDOW_TITLE, NULL, NULL);
         if (glfwWindow == NULL) {
             throw new IllegalStateException("glfwCreateWindow(...) failed; bailing out!");
@@ -76,9 +75,6 @@ public class slWindow {
 
         glfwSetCursorPosCallback(glfwWindow, slMouseListener::mousePosCallback);
         glfwSetMouseButtonCallback(glfwWindow, slMouseListener::mouseButtonCallback);
-        glfwSetScrollCallback(glfwWindow, slMouseListener::mouseScrollCallback);
-
-        glfwSetKeyCallback(glfwWindow, slKeyListener::keyCallback);
 
         glfwMakeContextCurrent(glfwWindow);
         glfwSwapInterval(1);
@@ -86,28 +82,31 @@ public class slWindow {
         glfwShowWindow(glfwWindow);
 
         GL.createCapabilities();
-
-        currentScene = new slLevelSceneEditor();
-        currentScene.init();
+        minesweeper_drawable = new slDrawablesManager(num_mines, vsPath, fsPath, texturePath);
+        System.out.println("Success reading in the vs, fs, and texture files");
     }
 
     public void loop() {
-        float beginTime = getTime();
-        float endTime = getTime();
-        float dt = -1.0f;
+        Vector2i rcVec = new Vector2i(-1, -1);  // Row-Column Vector
         while (!glfwWindowShouldClose(glfwWindow)){
             glfwPollEvents();
+            rcVec.set(-1, -1);  // Reset to default value indicating no valid tile selected
+            if (slMouseListener.mouseButtonDown(0)) {
+                float xp = slMouseListener.getX();
+                float yp = slMouseListener.getY();
+                slMouseListener.mouseButtonDownReset(0);
+                rcVec = slTilesManager.getRowColFromXY(xp, yp);  // Convert screen coords to grid coords
+            }
 
             glClearColor(ccRed, ccGreen, ccBlue, ccAlpha);
             glClear(GL_COLOR_BUFFER_BIT);
-            if (dt >= 0) {
-                currentScene.update(dt);
+
+            // Only update if a valid tile is selected
+            if (rcVec.x != -1 && rcVec.y != -1) {
+                minesweeper_drawable.update(rcVec.x, rcVec.y);
             }
 
             glfwSwapBuffers(glfwWindow);
-            endTime = getTime();
-            dt = endTime - beginTime;
-            beginTime = endTime;
-        }
-    }
-}
+        }  // while (!glfwWindowShouldClose(glfwWindow))
+    }  // public void loop()
+}  //  public class slWindow
