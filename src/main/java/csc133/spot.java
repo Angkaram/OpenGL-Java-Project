@@ -35,4 +35,6 @@ public class spot {
 
     public static final float alpha = 200.0f; // Speed of the polygon across the window;
     public static final float POLYGON_LENGTH = 100.0f; // may need to adjust
+
+    public static final int NUM_MINES = 4;
 }

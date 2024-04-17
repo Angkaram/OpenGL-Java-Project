@@ -3,8 +3,8 @@ package csc133;
 import org.joml.Vector2i;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.opengl.GL;
-import slRenderer.slMouseListener;
 import slRenderer.slDrawablesManager;
+import slRenderer.slMouseListener;
 import slRenderer.slTilesManager;
 
 import javax.swing.*;
@@ -53,9 +53,6 @@ public class slWindow {
         glfwSetErrorCallback(null).free();
     }
 
-    String vsPath = "vs_texture_1.glsl";
-    String fsPath = "fs_texture_1.glsl";
-    String texturePath = (System.getProperty("user.dir") + "/assets/shaders/FourTextures.png");
     public void init(int num_mines) {
         GLFWErrorCallback.createPrint(System.err).set();
         if (!glfwInit()) {
@@ -73,6 +70,7 @@ public class slWindow {
             throw new IllegalStateException("glfwCreateWindow(...) failed; bailing out!");
         }
 
+        // TODO: implement this
         glfwSetCursorPosCallback(glfwWindow, slMouseListener::mousePosCallback);
         glfwSetMouseButtonCallback(glfwWindow, slMouseListener::mouseButtonCallback);
 
@@ -82,31 +80,26 @@ public class slWindow {
         glfwShowWindow(glfwWindow);
 
         GL.createCapabilities();
-        minesweeper_drawable = new slDrawablesManager(num_mines, vsPath, fsPath, texturePath);
-        System.out.println("Success reading in the vs, fs, and texture files");
+        minesweeper_drawable = new slDrawablesManager(num_mines);
     }
 
     public void loop() {
-        Vector2i rcVec = new Vector2i(-1, -1);  // Row-Column Vector
+        Vector2i rcVec = new Vector2i(-1, -1);  // Row-Column Vec
         while (!glfwWindowShouldClose(glfwWindow)){
             glfwPollEvents();
-            rcVec.set(-1, -1);  // Reset to default value indicating no valid tile selected
+            rcVec.set(-1, -1);
+            // TODO: Implement this
             if (slMouseListener.mouseButtonDown(0)) {
                 float xp = slMouseListener.getX();
                 float yp = slMouseListener.getY();
                 slMouseListener.mouseButtonDownReset(0);
-                rcVec = slTilesManager.getRowColFromXY(xp, yp);  // Convert screen coords to grid coords
+                rcVec = slTilesManager.getRowColFromXY(xp, yp);
             }
-
             glClearColor(ccRed, ccGreen, ccBlue, ccAlpha);
             glClear(GL_COLOR_BUFFER_BIT);
-
-            // Only update if a valid tile is selected
-            if (rcVec.x != -1 && rcVec.y != -1) {
-                minesweeper_drawable.update(rcVec.x, rcVec.y);
-            }
-
+            minesweeper_drawable.update(rcVec.x, rcVec.y);
             glfwSwapBuffers(glfwWindow);
-        }  // while (!glfwWindowShouldClose(glfwWindow))
+        }
     }  // public void loop()
+
 }  //  public class slWindow
