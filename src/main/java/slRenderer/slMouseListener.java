@@ -33,8 +33,8 @@ public class slMouseListener {
         get().xPos = pos_x;
         get().yPos = pos_y;
         get().isDragging = get().mouseButtonPressed[0] ||
-                            get().mouseButtonPressed[1] ||
-                            get().mouseButtonPressed[2];
+                           get().mouseButtonPressed[1] ||
+                           get().mouseButtonPressed[2];
     }
 
     public static void mouseButtonCallback(long my_window, int button, int action, int mods) {

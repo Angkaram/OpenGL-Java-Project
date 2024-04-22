@@ -1,19 +1,11 @@
 package slRenderer;
-/*
-TODO:
-Make this a generic class with separate init_texture() for 2D textures.
- */
 
 import org.lwjgl.BufferUtils;
-
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
-
 import static org.lwjgl.opengl.GL11C.*;
 import static org.lwjgl.stb.STBImage.stbi_image_free;
 import static org.lwjgl.stb.STBImage.stbi_load;
-
-import org.lwjgl.stb.STBImage;
 
 interface TextureManagerInterface {
     public void bind_texture();
@@ -25,16 +17,16 @@ class slTextureManager implements  TextureManagerInterface {
     private int texID;
     ByteBuffer texImage = null;
 
-    private int i =0, j = 0, k = 0;
+    private final int i =0;
+    private final int j = 0;
+    private final int k = 0;
 
     public slTextureManager(String filepath) {
         this.texFilepath = filepath;
 
         texID = glGenTextures();
         glBindTexture(GL_TEXTURE_2D, texID);
-        // If we don't enable blending, the transparent pixels in the texture
-        // will render as dark pixels:
-        glEnable(GL_BLEND);
+        glEnable(GL_BLEND); // fixes some strange artifacts for some reason.
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
@@ -56,13 +48,12 @@ class slTextureManager implements  TextureManagerInterface {
                         0, GL_RGB, GL_UNSIGNED_BYTE, texImage);
             } else {
                 assert false: "Error loading texture: images with " + texChannels.get(0) +
-                                        " channels is not supported";
+                              " channels is not supported";
             }
         }
         else {
             assert false : "Error loading the texture image \"" + texFilepath + "\" ";
         }
-        // Now that the texture is loaded, the image memory can be released to OS:
         stbi_image_free(texImage);
     }
 
@@ -73,5 +64,4 @@ class slTextureManager implements  TextureManagerInterface {
     public void unbind_texture() {
         glBindTexture(GL_TEXTURE_2D, 0);
     }
-
 }

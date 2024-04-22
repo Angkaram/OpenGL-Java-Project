@@ -6,17 +6,11 @@ import org.lwjgl.opengl.GL;
 import slRenderer.slDrawablesManager;
 import slRenderer.slMouseListener;
 import slRenderer.slTilesManager;
-
-import javax.swing.*;
-
 import static csc133.spot.*;
 import static org.lwjgl.glfw.Callbacks.*;
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11C.*;
-
-// Added by hand -shankar:
-import static org.lwjgl.system.MemoryUtil.*;
-
+import static org.lwjgl.system.MemoryUtil.*; // Added by hand -shankar:
 
 public class slWindow {
 
@@ -70,7 +64,6 @@ public class slWindow {
             throw new IllegalStateException("glfwCreateWindow(...) failed; bailing out!");
         }
 
-        // TODO: implement this
         glfwSetCursorPosCallback(glfwWindow, slMouseListener::mousePosCallback);
         glfwSetMouseButtonCallback(glfwWindow, slMouseListener::mouseButtonCallback);
 
@@ -84,11 +77,10 @@ public class slWindow {
     }
 
     public void loop() {
-        Vector2i rcVec = new Vector2i(-1, -1);  // Row-Column Vec
+        Vector2i rcVec = new Vector2i(-1, -1);
         while (!glfwWindowShouldClose(glfwWindow)){
             glfwPollEvents();
             rcVec.set(-1, -1);
-            // TODO: Implement this
             if (slMouseListener.mouseButtonDown(0)) {
                 float xp = slMouseListener.getX();
                 float yp = slMouseListener.getY();

@@ -32,7 +32,7 @@ public class slShaderManager {
         }
     }  // slShaderManager(String vs_filename, String fs_filename)
 
-    public  int compile_shader() {
+    public int compile_shader() {
         csProgram = glCreateProgram();
         int VSID = glCreateShader(GL_VERTEX_SHADER);
         glShaderSource(VSID, vsSource);
@@ -54,19 +54,15 @@ public class slShaderManager {
         glUseProgram(csProgram);
     }
 
-    public int getShaderProgram() {
-        return csProgram; // Return the program ID
-    }
-
     public static void detach_shader() {
         glUseProgram(0);
-    }  // public static void detach_shader()
+    }
 
     public void loadTexture(String texName, int texSlot) {
         int texLocation = glGetUniformLocation(csProgram, texName);
         set_shader_program();
         glUniform1i(texLocation, texSlot);
-    }  // public void loadTexture(String texName, int texSlot)
+    }  // public void loadTexture
 
     public void loadMatrix4f(String strMatrixName, Matrix4f my_mat4) {
         int var_location = glGetUniformLocation(csProgram, strMatrixName);
@@ -74,6 +70,6 @@ public class slShaderManager {
         FloatBuffer matrixBuffer = BufferUtils.createFloatBuffer(OGL_MATRIX_SIZE);
         my_mat4.get(matrixBuffer);
         glUniformMatrix4fv(var_location, false, matrixBuffer);
-    }  // private static void loadMatrix4f(String strMatrixName, Matrix4f my_mat4)
+    }  // private static void loadMatrix4f
 
 }
