@@ -62,7 +62,7 @@ public class slShaderManager {
         int texLocation = glGetUniformLocation(csProgram, texName);
         set_shader_program();
         glUniform1i(texLocation, texSlot);
-    }  // public void loadTexture(String texName, int texSlot)
+    }  // public void loadTexture(String texName, int texSlot) 
 
     public void loadMatrix4f(String strMatrixName, Matrix4f my_mat4) {
         int var_location = glGetUniformLocation(csProgram, strMatrixName);
